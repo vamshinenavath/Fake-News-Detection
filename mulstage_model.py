@@ -6,6 +6,43 @@ from torchtext.vocab import GloVe
 import torch.optim as optim
 import random
 
+import torch
+import numpy as np
+from sklearn.svm import SVC
+from sklearn.preprocessing import LabelEncoder
+
+
+class SVM_Classifier:
+    def __init__(self, kernel = 'rbf', C= 1.0, **kwargs):
+        self.kernel = kernel
+        self.C = C
+        self.model = SVC(kernel=self.kernel, C=self.C, **kwargs)
+        self.label_encoder = LabelEncoder()
+
+    def _to_numpy(self, X):
+        if isinstance(X, torch.Tensor):
+            return X.detach().cpu().numpy()
+        return X
+    
+
+    def fit(self, X, y):
+        X_np = self._to_numpy(X)
+        if isinstance(y, torch.Tensor) and y.ndim > 1:
+            y_np = y.argmax(dim=1).detach().cpu().numpy()
+        else:
+            y_np = self._to_numpy(y)
+        self.model.fit(X_np, y_np)
+
+    def predict(self, X):
+        X_np = self._to_numpy(X)
+        return self.model.predict(X_np)
+    
+    def score(self, X, y_true):
+        y_true = self._to_numpy(y_true)
+        y_pred = self.predict(X)
+        return (y_pred == y_true).mean()
+    
+
 class CNN_BiLSTM(nn.Module):
     def __init__(self, vocab, vocab_size, embed_dim, hidden_dim, output_dim, pad_idx):
         super().__init__()
@@ -86,7 +123,8 @@ class FakeNewsClassifier(nn.Module):
         self.relu2 = nn.ReLU()
         self.dropout2 = nn.Dropout(0.5)  # Dropout to prevent overfitting
 
-        self.fc3 = nn.Linear(512, 128)  # The additional hidden layer
+        self.fc3 = nn.Linear(256, 128)  # The additional hidden layer
+        ## tthis was previously nn.Linear(512, 128); changed because of an error
         self.relu3 = nn.ReLU()
         self.dropout3 = nn.Dropout(0.5)  # Dropout to prevent overfitting
         
@@ -110,5 +148,7 @@ class FakeNewsClassifier(nn.Module):
 
         x = self.fc4(x)
         return x
+
+
 
 
