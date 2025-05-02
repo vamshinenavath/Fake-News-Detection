@@ -10,6 +10,7 @@ import torch
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
+import os
 
 
 class SVM_Classifier:
@@ -43,13 +44,16 @@ class SVM_Classifier:
         return (y_pred == y_true).mean()
     
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+glove = GloVe(name='6B', dim=100, cache=os.path.join(current_dir, '.vector_cache'))
+
 class CNN_BiLSTM(nn.Module):
     def __init__(self, vocab, vocab_size, embed_dim, hidden_dim, output_dim, pad_idx):
         super().__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=pad_idx)
 
         # Load GloVe
-        glove = GloVe(name='6B', dim=100)
+        # glove = GloVe(name='6B', dim=100)
         pretrained_embeddings = torch.zeros(vocab_size, embed_dim)
         for word, idx in vocab.get_stoi().items():
             if word in glove.stoi:
@@ -112,7 +116,6 @@ class SecondaryModel(nn.Module):
         self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=pad_idx)
 
         # Load GloVe
-        glove = GloVe(name='6B', dim=100)
         pretrained_embeddings = torch.zeros(vocab_size, embed_dim)
         for word, idx in vocab.get_stoi().items():
             if word in glove.stoi:
