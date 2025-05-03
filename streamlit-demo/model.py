@@ -32,7 +32,7 @@ print(f"Using device: {device}")
 
 primary_model = CNN_BiLSTM(vocab=vocab, vocab_size=len(vocab), embed_dim=100, hidden_dim=128, output_dim=1, pad_idx=vocab['<pad>'])
 primary_model.to(device)
-primary_model.load_state_dict(torch.load(os.path.join(model_dir, primary_model_file), map_location=device))
+primary_model.load_state_dict(torch.load(   os.path.join(model_dir, primary_model_file), map_location=device))
 
 secondary_model = CNN_BiLSTM(vocab=vocab, vocab_size=len(vocab), embed_dim=100, hidden_dim=128, output_dim=len(label_encoder.classes_), pad_idx=vocab['<pad>'])
 secondary_model.to(device)
